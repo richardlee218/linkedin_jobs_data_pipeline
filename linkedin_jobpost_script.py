@@ -7,6 +7,13 @@ import pandas as pd
 import re
 import time
 import sys, os
+from dotenv import load_dotenv, dotenv_values 
+
+# Load environment variables from a .env file if available
+%reload_ext dotenv
+%dotenv /Users/folder/path/ini.env
+
+CSV_FOLDER_PATH = os.getenv('CSV_FOLDER_PATH')
 
 # Function creates a list of all numbers found within text
 def extract_numbers(text):
@@ -31,8 +38,8 @@ title = "Data Analyst"
 location = "New York"
 #https://www.linkedin.com/jobs/search?keywords=Data%20Analyst&location=New%20York%2C%20New%20York%2C%20United%20States&position=1&pageNum=0
 
-list_size = "25"
-list_url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Data%20Analyst&location=New%20York%2C%20New%20York%2C%20United%20States&start={list_size}"
+list_start = "0" # outputs 10 psots per page should increase in increments of 10 starting from 0
+list_url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Data%20Analyst&location=New%20York%2C%20New%20York%2C%20United%20States&start={list_start}"
 
 response = requests.get(list_url)
 
@@ -91,7 +98,7 @@ for job_id in id_list:
 	except:
 		job_post["num_applicants_2"] = None
 	try:
-		job_post["job_description"] = job_soup.find("div",{"class":"show-more-less-html__markup show-more-less-html__markup--clamp-after-5 relative overflow-hidden"}).text.strip()
+		job_post["job_description"] = job_soup.find("div",{"class":"show-more-less-html__markup show-more-less-html__markup--clamp-after-5 relative overflow-hidden"}).get_text(separator=' ').strip()
 	except:
 		job_post["job_description"] = None
 	# Parse the job criteria items
@@ -114,11 +121,11 @@ jobs_df['time_posted_numeric'] = jobs_df['time_posted_text'].apply(extract_first
 jobs_df['time_posted_time_unit'] = jobs_df['time_posted_text'].apply(extract_time_unit)
 jobs_df['scraped_date'] =  pd.Timestamp.today().date()
 jobs_df = jobs_df.rename(columns={"Seniority level":'seniority_lvl',"Employment type":'employment_type','Job function':'job_function','Industries':'industries'})
-jobs_df_clean = jobs_df[['job_id','scraped_date','job_title','company_name','location','seniority_lvl','employment_type','job_function','industries','time_posted_text','time_posted_numeric','time_posted_time_unit','num_applicants_text','num_applicants_numeric']]
+jobs_df_clean = jobs_df[['job_id','scraped_date','job_title','company_name','location','seniority_lvl','employment_type','job_function','industries','time_posted_text','time_posted_numeric','time_posted_time_unit','num_applicants_text','num_applicants_numeric','job_description']]
 
 # Export the data as a CSV file to specified folder location
 csv_filename = f"newyork_data_analyst_{today_date_int}_{today_time_int}.csv"
-output_file = os.path.join('/to/your/path/', csv_filename)
+output_file = os.path.join(CSV_FOLDER_PATH, csv_filename)
 jobs_df_clean.to_csv(output_file, index=False)
 print(f"CSV file exported to: {output_file}")
 
