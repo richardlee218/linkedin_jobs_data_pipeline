@@ -61,10 +61,10 @@ get_datetime ──► process_datetime ──► save_datetime
 - scraped_date
 
 ## Future Improvements
--- Extend scrape to include full job descriptions and multiple page depth
--- Iterate over CSV files within storage file system for multiple file processing
--- Implement deduplication logic before database insert
--- Add Slack/email alerts within Airflow DAG and denote task success/failure
--- Replace CSV intermediary with S3 or GCS bucket
+- Extend scrape to include full job descriptions and multiple page depth
+- Iterate over CSV files within storage file system for multiple file processing
+- Implement deduplication logic before database insert
+- Add Slack/email alerts within Airflow DAG and denote task success/failure
+- Replace CSV intermediary with S3 or GCS bucket
 
 
